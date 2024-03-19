@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Xml.XPath;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
@@ -114,7 +115,7 @@ namespace Marsher
     public class MarshmallowService : Service
     {
         private readonly XPathExpression _findAllMarshmallowsExpression
-            = XPathExpression.Compile("//li[contains(@class, 'list-group-item') and not(@id='sample-message') and not(contains(@class, 'tip'))]//a[contains(@data-target, 'message.content')]");
+            = XPathExpression.Compile("//li[contains(@class, 'list-group-item') and not(@id='sample-message') and not(contains(@class, 'tip'))]//a[contains(@data-obscene-word-target, 'content')]");
         private readonly XPathExpression _findLoadNextPageExpression = XPathExpression.Compile("//a[contains(@class, 'load-more')]");
         private readonly Regex _extractIdRegex = new Regex("/messages/([a-zA-Z0-9\\-]+)");
 

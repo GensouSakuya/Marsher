@@ -16,6 +16,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CefSharp.Wpf;
+using CefSharp;
 using GongSolutions.Wpf.DragDrop;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
@@ -47,6 +49,13 @@ namespace Marsher
         private Task _currentTask;
         public MainWindow()
         {
+            CefSettings settings = new CefSettings()
+            {
+                //todo send ua to keeper
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36 Edg/118.0.2088.44"
+            };
+            if (!Cef.IsInitialized)
+                Cef.Initialize(settings);
             LoadFromXmlFile(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly()?.Location ?? "Marsher.exe"), "Resources", "dictionary.txd"));
             _updateManager = new MarsherUpdateManager();
             _updateManager.CheckUpdate();
