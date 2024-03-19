@@ -76,12 +76,12 @@ namespace Marsher
 
             InitializeComponent();
             _localListPersistence = new LocalListPersistence();
+            _database.Database.EnsureCreatedAsync();
             _viewModel = new MainViewModel(_database, _localListPersistence, DialogCoordinator.Instance)
             {
                 Version = "v" + _updateManager.GetCurrentVersion()
             };
             DataContext = _viewModel;
-            _database.Database.EnsureCreatedAsync();
             //_database.Items.LoadAsync();
             //_viewModel.LoadNextPage();
 
