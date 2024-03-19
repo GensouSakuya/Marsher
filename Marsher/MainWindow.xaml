@@ -24,6 +24,7 @@
                     <ContextMenu x:Name="LoginContextMenu">
                         <MenuItem x:Name="LoginToMarshmallowContextMenuItem" Header="{Tx:T ui.commands.login.marshmallow}" Click="LoginToMarshmallowContextMenuItem_Click" />
                         <MenuItem x:Name="LoginToPeingContextMenuItem" Header="{Tx:T ui.commands.login.peing}" Click="LoginToPeingContextMenuItem_Click" />
+                        <MenuItem x:Name="LoginToKikuContextMenuItem" Header="{Tx:T ui.commands.login.kiku}" Click="LoginToKikuContextMenuItem_Click" />
                         <Separator />
                         <MenuItem x:Name="LogoutContextMenuItem" Header="{Tx:T ui.commands.login.logout}" Click="LogoutContextMenuItem_Click" />
                     </ContextMenu>
@@ -61,6 +62,8 @@
                     <TextBlock Text="{Tx:T ui.status.marshmallow}" Margin="3,0" />
                     <iconPacks:PackIconMaterial Kind="{Binding Path=PeingStatus}" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     <TextBlock Text="{Tx:T ui.status.peing}" Margin="3,0" />
+                    <iconPacks:PackIconMaterial Kind="{Binding Path=KikuStatus}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Tx:T ui.status.kiku}" Margin="3,0" />
                 </WrapPanel>
             </StatusBarItem>
             <Separator Grid.Column="1" />

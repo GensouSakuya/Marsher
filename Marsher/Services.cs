@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -11,6 +12,7 @@ using System.Windows;
 using System.Xml.XPath;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
+using RestSharp;
 using WebSocketSharp;
 
 namespace Marsher
@@ -263,6 +265,73 @@ namespace Marsher
                 }
             }
             //throw new NotImplementedException();
+        }
+    }
+
+    public class KikuService : Service
+    {
+        public override void Fetch(Func<IEnumerable<QaItem>, bool> update)
+        {
+            var baseUri = "https://api.kikubox.com/v1/box/question?type=noreply&page={0}&onlyExcerpt=1";
+            var index = 1;
+            var nextUri = string.Format(baseUri, index);
+            var options = new RestClientOptions()
+            {
+                ConfigureMessageHandler = h =>
+                {
+                    var handler = (HttpClientHandler)h;
+                    handler.UseCookies = true;
+                    handler.CookieContainer = _container;
+                    return handler;
+                }
+            };
+            using (var client = new RestClient(options))
+            {
+                while (true)
+                {
+                    try
+                    {
+                        var res = client.ExecuteGet(new RestRequest(nextUri));
+                        if (!res.IsSuccessStatusCode && res.StatusCode == HttpStatusCode.Unauthorized)
+                        {
+                            FireOnLoginStatusChanged(ServiceStatus.NotLoggedIn);
+                            break;
+                        }
+
+                        var jres = JArray.Parse(res.Content);
+
+                        if (jres.Count == 0)
+                            break;
+                        
+                        var items = jres.Select(p =>
+                        {
+                            return new QaItem
+                            {
+                                Id = p["id"].ToString(),
+                                Content = p["excerpt"].ToString(),
+                                Service = QaService.Kiku
+                            };
+                        });
+
+                        if (!update(items)) 
+                            break;
+
+                        index++;
+                        nextUri = string.Format(baseUri, index);
+                    }
+                    catch (Exception)
+                    {
+                        FireOnLoginStatusChanged(ServiceStatus.Error);
+                        break;
+                    }
+                }
+            }
+            SaveCookie();
+        }
+
+        protected override void OnCookieUpdated()
+        {
+            CheckLoginStatusAndFailOnRedirect("https://api.kikubox.com/v1/box/question?type=noreply&page=1&onlyExcerpt=1");
         }
     }
 }

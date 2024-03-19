@@ -29,7 +29,7 @@ namespace Marsher
 
     public enum QaService
     {
-        Marshmallow = 0x10, Peing = 0x20
+        Marshmallow = 0x10, Peing = 0x20, Kiku = 0x40,
     }
 
     public class QaList

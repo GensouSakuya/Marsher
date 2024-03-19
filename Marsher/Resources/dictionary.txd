@@ -35,6 +35,7 @@ Details:{exception}</text>
 		<text key="status.display_updated">Updated display.</text>
 		<text key="status.dropped.marshmallow">Marshmallow service dropped.</text>
 		<text key="status.dropped.peing">Peing service dropped.</text>
+		<text key="status.dropped.kiku">Kiku service dropped.</text>
 		<text key="status.fetch_failed">Failed to fetch questions! {exception}</text>
 		<text key="status.fetch_update">Fetched {items} item(s) from {pages} page(s) from {service} service.</text>
 		<text key="status.fetched">Fetching completed. Fetched {items} items from {pages} pages.</text>
@@ -43,12 +44,14 @@ Details:{exception}</text>
 		<text key="status.imported" count="1" acceptpunctuation="true">Imported {#} question.</text>
 		<text key="status.logged_in.marshmallow">Marshmallow service logged in.</text>
 		<text key="status.logged_in.peing">Peing service logged in.</text>
+		<text key="status.logged_in.kiku">Kiku service logged in.</text>
 		<text key="ui.collector">Collector for {name}</text>
 		<text key="ui.commands.fetch">fetch</text>
 		<text key="ui.commands.login">login service</text>
 		<text key="ui.commands.login.logout">Log out</text>
 		<text key="ui.commands.login.marshmallow">Login to Marshmallow</text>
 		<text key="ui.commands.login.peing">Login to Peing</text>
+		<text key="ui.commands.login.kiku">Login to Kiku</text>
 		<text key="ui.item.content">Content</text>
 		<text key="ui.item.display">Display</text>
 		<text key="ui.item.id">ID</text>
@@ -60,6 +63,7 @@ Details:{exception}</text>
 		<text key="ui.preview">PREVIEW</text>
 		<text key="ui.status.marshmallow">Marshmallow</text>
 		<text key="ui.status.peing">peing</text>
+		<text key="ui.status.kiku">Kiku</text>
 		<text key="ui.toolbar.drag_to_remove">Drop here to remove</text>
 		<text key="ui.toolbar.edit_list">Open collector to edit question list</text>
 		<text key="ui.toolbar.new_list">New question list</text>
@@ -101,6 +105,7 @@ Details:{exception}</text>
 		<text key="status.display_updated" acceptpunctuation="true">プレゼンテーションを更新しました。</text>
 		<text key="status.dropped.marshmallow" acceptpunctuation="true">マシュマロサーバーへの接続が切断されました。</text>
 		<text key="status.dropped.peing" acceptpunctuation="true">Peingサーバーへの接続が切断されました。</text>
+		<text key="status.dropped.kiku" acceptpunctuation="true">Kikuサーバーへの接続が切断されました。</text>
 		<text key="status.fetch_failed">質問の取得に失敗しました。{exception}</text>
 		<text key="status.fetch_update" acceptpunctuation="true">{service}サーバーから合計{pages}ページの{items}個の質問を取得しました。</text>
 		<text key="status.fetched" acceptpunctuation="true">取得に成功しました。合計{pages}ページから{items}個の質問を取得しました。</text>
@@ -108,12 +113,14 @@ Details:{exception}</text>
 		<text key="status.imported">インポート完了。{#}個の質問を追加しました。</text>
 		<text key="status.logged_in.marshmallow" acceptpunctuation="true">マシュマロサーバーにログインしました。</text>
 		<text key="status.logged_in.peing" acceptpunctuation="true">Peingサーバーにログインしました。</text>
+		<text key="status.logged_in.kiku" acceptpunctuation="true">Kikuサーバーにログインしました。</text>
 		<text key="ui.collector">コレクター: {name}</text>
 		<text key="ui.commands.fetch">質問を取得</text>
 		<text key="ui.commands.login">質問箱サーバーにログイン</text>
 		<text key="ui.commands.login.logout">ログアウト</text>
 		<text key="ui.commands.login.marshmallow">マシュマロサーバーにログイン</text>
 		<text key="ui.commands.login.peing">Peingサーバーにログイン</text>
+		<text key="ui.commands.login.kiku">Kikuサーバーにログイン</text>
 		<text key="ui.item.content">内容</text>
 		<text key="ui.item.display">プレゼンテーション</text>
 		<text key="ui.item.id">ID</text>
@@ -125,6 +132,7 @@ Details:{exception}</text>
 		<text key="ui.preview">プレビュー</text>
 		<text key="ui.status.marshmallow">マシュマロ</text>
 		<text key="ui.status.peing">Peing</text>
+		<text key="ui.status.kiku">Kiku</text>
 		<text key="ui.toolbar.drag_to_remove">ここにドラッグして削除</text>
 		<text key="ui.toolbar.edit_list">質問リストの編集にコレクターを開く</text>
 		<text key="ui.toolbar.new_list">質問リストの新規作成</text>
@@ -166,6 +174,7 @@ Details:{exception}</text>
 		<text key="status.display_updated">展示已更新.</text>
 		<text key="status.dropped.marshmallow">丢失Marshmallow服务器的连接与登录状态.</text>
 		<text key="status.dropped.peing">丢失Peing服务器的连接与登录状态.</text>
+		<text key="status.dropped.kiku">丢失Kiku服务器的连接与登录状态.</text>
 		<text key="status.fetch_failed">无法拉取提问！{exception}</text>
 		<text key="status.fetch_update">已从{service}的{pages}页中拉取{items}个提问.</text>
 		<text key="status.fetched">拉取完成. 从{pages}个页中拉取了{items}个提问.</text>
@@ -173,12 +182,14 @@ Details:{exception}</text>
 		<text key="status.imported">已导入{#}个提问。</text>
 		<text key="status.logged_in.marshmallow">已登入Marshmallow服务.</text>
 		<text key="status.logged_in.peing">已登入peing服务.</text>
+		<text key="status.logged_in.kiku">已登入Kiku服务.</text>
 		<text key="ui.collector" comment="整理器标题">整理器: {name}</text>
 		<text key="ui.commands.fetch">拉取提问</text>
 		<text key="ui.commands.login" comment="右上方登录菜单">登录提问箱服务</text>
 		<text key="ui.commands.login.logout">登出</text>
 		<text key="ui.commands.login.marshmallow">登入Marshmallow服务</text>
 		<text key="ui.commands.login.peing">登入Peing服务</text>
+		<text key="ui.commands.login.kiku">登入Kiku服务</text>
 		<text key="ui.item.content">内容</text>
 		<text key="ui.item.display" comment="按钮：在本地服务上显示当前选择的提问">显示</text>
 		<text key="ui.item.id">ID</text>
@@ -190,6 +201,7 @@ Details:{exception}</text>
 		<text key="ui.preview">预览</text>
 		<text key="ui.status.marshmallow" comment="左下角状态栏标注的服务名">Marshmallow</text>
 		<text key="ui.status.peing" comment="左下角状态栏标注的服务名">peing</text>
+		<text key="ui.status.kiku">Kiku</text>
 		<text key="ui.toolbar.drag_to_remove">拖放在此以删除</text>
 		<text key="ui.toolbar.edit_list">打开收集器以修改提问列表</text>
 		<text key="ui.toolbar.new_list">新建提问列表</text>

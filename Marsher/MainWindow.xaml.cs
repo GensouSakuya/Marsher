@@ -40,6 +40,7 @@ namespace Marsher
 
         private readonly MarshmallowService _marshmallowService;
         private readonly PeingService _peingService;
+        private readonly KikuService _kikuService;
         private readonly QaDataContext _database = new QaDataContext();
         private readonly LocalListPersistence _localListPersistence;
         private readonly DisplayCommunication _displayCommunication;
@@ -115,6 +116,16 @@ namespace Marsher
                     if (status == ServiceStatus.Available)
                         _viewModel.StatusText = T("status.logged_in.marshmallow");
                     else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.marshmallow");
+                });
+            _kikuService = new KikuService();
+            _kikuService.OnLoginStatusChanged += (sender, status) =>
+                Dispatcher?.Invoke(() =>
+                {
+                    if (sender != _kikuService) return;
+                    _viewModel.UpdateKikuStatus(status);
+                    if (status == ServiceStatus.Available)
+                        _viewModel.StatusText = T("status.logged_in.kiku");
+                    else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.kiku");
                 });
 
             foreach (var stubs in _localListPersistence.GetAllStubs())
@@ -200,7 +211,6 @@ namespace Marsher
         {
             OpenLoginWindow(
                 "https://marshmallow-qa.com",
-                "https://marshmallow-qa.com/messages/personal",
                 T("ui.commands.login.marshmallow"), _marshmallowService);
         }
 
@@ -208,14 +218,20 @@ namespace Marsher
         {
             OpenLoginWindow(
                 "https://peing.net/",
-                "https://peing.net/ja/stg",
                 T("ui.commands.login.peing"), _peingService);
         }
 
-        private void OpenLoginWindow(string url, string cookieUrl, string title, Service service)
+        private void LoginToKikuContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenLoginWindow(
+                "https://app.kikubox.com/",
+                T("ui.commands.login.kiku"), _kikuService);
+        }
+
+        private void OpenLoginWindow(string url, string title, Service service)
         {
             var window = new ServiceLoginWindow();
-            window.Initialize(new Uri(url), new Uri(cookieUrl), title);
+            window.Initialize(new Uri(url), title);
 
             window.ShowDialog();
             if (window.ResultContainer != null)
@@ -411,8 +427,10 @@ namespace Marsher
                 UpdateStatusText(T("status.fetching"));
                 FetchService(T("service.marshmallow"), _marshmallowService, out var marshmallowCount, out var marshmallowPageCount);
                 FetchService(T("service.peing"), _peingService, out var peingCount, out var peingPageCount);
+                FetchService(T("service.kiku"), _kikuService, out var kikukCount, out var kikuPageCount);
 
-                UpdateStatusText(T("status.fetched", "items", (marshmallowCount + peingCount).ToString(), "pages", (marshmallowPageCount + peingPageCount).ToString()));
+                _viewModel.RefreshQaList();
+                UpdateStatusText(T("status.fetched", "items", (marshmallowCount + peingCount + kikukCount).ToString(), "pages", (marshmallowPageCount + peingPageCount+ kikuPageCount).ToString()));
             });
             try
             {
@@ -676,6 +694,7 @@ namespace Marsher
 
         public PackIconMaterialKind MarshmallowStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
         public PackIconMaterialKind PeingStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
+        public PackIconMaterialKind KikuStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
 
         #endregion
 
@@ -765,6 +784,12 @@ namespace Marsher
             PeingStatus = _statusDictionary[status];
             FireOnPropertyChanged(nameof(PeingStatus));
         }
+        internal void UpdateKikuStatus(ServiceStatus status)
+        {
+            KikuStatus = _statusDictionary[status];
+            FireOnPropertyChanged(nameof(KikuStatus));
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -779,6 +804,13 @@ namespace Marsher
             ActiveQaListEditable = !ReferenceEquals(_activeList, AllQaItemsList)
                                    && (!(_activeList is QaListStubs) || !((QaListStubs)_activeList).Locked)
                                    && (!(_activeList is QaListStubsViewModel) || !((QaListStubsViewModel)_activeList).Locked);
+        }
+
+        public void RefreshQaList()
+        {
+            //FireOnPropertyChanged("AllQaItemsHolder");
+            //FireOnPropertyChanged("ActiveQaList");
+            ActiveQaList = AllQaItemsList;
         }
 
         #region Drop and Delete Support
@@ -830,22 +862,24 @@ namespace Marsher
                 if (result != MessageDialogResult.Affirmative) return;
             }
 
-            if (fromAllList)
+            using (var transaction = _dataContext.Database.BeginTransaction())
             {
-                using (var transaction = _dataContext.Database.BeginTransaction())
+                foreach(var item in items)
                 {
-                    _dataContext.Items.RemoveRange(items);
-                    transaction.Commit();
+                    var deleteItm = _dataContext.Items.FirstOrDefault(p => p.Id == item.Id);
+                    if (deleteItm != null)
+                        _dataContext.Items.Remove(deleteItm);
                 }
+                transaction.Commit();
+            }
 
-                await _dataContext.SaveChangesAsync();
-            }
-            else
-            {
-                if (!(src is ObservableCollection<QaItem> srcObs)) return;
-                foreach (var item in items)
-                    srcObs.Remove(item);
-            }
+            await _dataContext.SaveChangesAsync();
+
+            if (!(src is ObservableCollection<QaItem> srcObs)) 
+                return;
+
+            foreach (var item in items)
+                srcObs.Remove(item);
         }
 
         private static IEnumerable ExtractData(object data)

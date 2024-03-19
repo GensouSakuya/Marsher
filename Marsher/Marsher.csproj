@@ -461,6 +461,7 @@
     <Content Include="Resources\dictionary.txd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Icons\Kiku.png" />
     <Content Include="Resources\RELEASES.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
