@@ -272,7 +272,7 @@ namespace Marsher
     {
         public override void Fetch(Func<IEnumerable<QaItem>, bool> update)
         {
-            var baseUri = "https://api.kikubox.com/v1/box/question?type=noreply&page={0}&onlyExcerpt=1";
+            var baseUri = "https://api.kikubox.com/v1/box/question?type=noreply&page={0}";
             var index = 1;
             var nextUri = string.Format(baseUri, index);
             var options = new RestClientOptions()
@@ -308,7 +308,7 @@ namespace Marsher
                             return new QaItem
                             {
                                 Id = p["id"].ToString(),
-                                Content = p["excerpt"].ToString(),
+                                Content = p["content"].ToString(),
                                 Service = QaService.Kiku
                             };
                         });
