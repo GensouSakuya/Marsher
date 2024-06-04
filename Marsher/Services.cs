@@ -32,8 +32,14 @@ namespace Marsher
 
         protected Service()
         {
+            Init();
             SessionFolder = MarsherFilesystem.GetPath("sessions");
             LoadCookie();
+        }
+
+        protected virtual void Init()
+        {
+
         }
 
         public void UpdateCookie(CookieContainer container)
@@ -332,6 +338,96 @@ namespace Marsher
         protected override void OnCookieUpdated()
         {
             CheckLoginStatusAndFailOnRedirect("https://api.kikubox.com/v1/box/question?type=noreply&page=1&onlyExcerpt=1");
+        }
+    }
+
+    public class JoiAskService : Service
+    {
+        private string _baseUri;
+        private string _apiUri;
+
+        public string AdminUrl => $"{_baseUri}/admin";
+
+        protected override void Init()
+        {
+            base.Init();
+            var joiAskUrl = Config.Instance.JoiAskUrl;
+            if (string.IsNullOrEmpty(joiAskUrl))
+                return;
+            if (!joiAskUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                _baseUri = "https://" + joiAskUrl;
+            }
+            else
+            {
+                _baseUri = joiAskUrl;
+            }
+            _apiUri = $"{_baseUri}/api/question?page={{0}}&page_size=20&order_by=id&order=desc&tag_id=0";
+        }
+
+        public override void Fetch(Func<IEnumerable<QaItem>, bool> update)
+        {
+            var index = 1;
+            var nextUri = string.Format(_apiUri, index);
+            var options = new RestClientOptions()
+            {
+                ConfigureMessageHandler = h =>
+                {
+                    var handler = (HttpClientHandler)h;
+                    handler.UseCookies = true;
+                    handler.CookieContainer = _container;
+                    return handler;
+                }
+            };
+            using (var client = new RestClient(options))
+            {
+                while (true)
+                {
+                    try
+                    {
+                        var res = client.ExecuteGet(new RestRequest(nextUri));
+                        if (!res.IsSuccessStatusCode && res.StatusCode == HttpStatusCode.Unauthorized)
+                        {
+                            FireOnLoginStatusChanged(ServiceStatus.NotLoggedIn);
+                            break;
+                        }
+
+                        var jres = JObject.Parse(res.Content);
+                        if (jres == null)
+                            return;
+                        var array = jres["data"]["questions"].ToArray();
+                        if (array == null || array.Length <= 0)
+                            return;
+
+                        var items = array.Select(p =>
+                        {
+                            return new QaItem
+                            {
+                                Id = p["id"].ToString(),
+                                Content = p["content"].ToString(),
+                                Service = QaService.JoiAsk
+                            };
+                        });
+
+                        if (!update(items))
+                            break;
+
+                        index++;
+                        nextUri = string.Format(_apiUri, index);
+                    }
+                    catch (Exception)
+                    {
+                        FireOnLoginStatusChanged(ServiceStatus.Error);
+                        break;
+                    }
+                }
+            }
+            SaveCookie();
+        }
+
+        protected override void OnCookieUpdated()
+        {
+            CheckLoginStatusAndFailOnRedirect(string.Format(_baseUri, 1));
         }
     }
 }

@@ -48,6 +48,10 @@
     background-color:#fd7126;
     border-radius: 8px;
   }
+  .joiask-message-card{
+    background-color:#fedcae;
+    border-radius: 8px;
+  }
   .message-card__body {
     background-color: white;
     border-radius: 8px;
@@ -55,6 +59,9 @@
   }
   .message-card__body_kiku {
     background: rgb(255, 210, 169);
+  }
+  .message-card__body_joiask {
+    background: #fff7ed;
   }
 
   .message-card__text-wrapper {
@@ -92,6 +99,12 @@
     font-size:20px;
   }
 
+  .message-card__text_joiask {
+    background: transparent;
+    color: #748295;
+    font-size:20px;
+  }
+
   .message-card__brand-wrapper {
     font-family: "Rounded Mplus 1c", "M PLUS Rounded 1c", sans-serif;
     padding: 0.5em 0;
@@ -108,6 +121,11 @@
     color: rgb(156, 42, 16);
     border-radius: 8px;
   }
+  .message-card__brand-wrapper_joiask {
+    background: #fff4e5;
+    color: #ff9800;
+    border-radius: 8px;
+  }
 
   .message-card__logo-wrapper {
     height: 50px;
@@ -116,6 +134,10 @@
   .message-card__logo-wrapper_kiku{
 
     color: rgb(255, 255, 255);
+  }
+  .message-card__logo-wrapper_joiask{
+
+    color: rgb(11, 230, 59);
   }
 
   .message-card__logo {
@@ -145,6 +167,7 @@
             $('#marshmallow_wrapper').css("display", "block");
             $('#peing_wrapper').css("display", "none");
             $('#kiku_wrapper').css("display", "none");
+            $('#joiask_wrapper').css("display", "none");
             appelem.transition({opacity: '1'}, 250, "snap");
             break;
           case 0x20:
@@ -152,6 +175,7 @@
             $('#marshmallow_wrapper').css("display", "none");
             $('#peing_wrapper').css("display", "block");
             $('#kiku_wrapper').css("display", "none");
+            $('#joiask_wrapper').css("display", "none");
             appelem.transition({opacity: '1'}, 250, "snap");
             break;
           case 0x40:
@@ -159,6 +183,14 @@
             $('#marshmallow_wrapper').css("display", "none");
             $('#peing_wrapper').css("display", "none");
             $('#kiku_wrapper').css("display", "block");
+            $('#joiask_wrapper').css("display", "none");
+            appelem.transition({opacity: '1'}, 250, "snap");
+          case 0x80:
+            $('#text_joiask').text(tobj.text);
+            $('#marshmallow_wrapper').css("display", "none");
+            $('#peing_wrapper').css("display", "none");
+            $('#kiku_wrapper').css("display", "none");
+            $('#joiask_wrapper').css("display", "block");
             appelem.transition({opacity: '1'}, 250, "snap");
         }
       });
@@ -215,6 +247,19 @@
           <div class="message-card__logo-wrapper message-card__logo-wrapper_kiku"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-inbox false"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></div>
       </div>
   </div>
+  <div class="message-card-wrapper" id="joiask_wrapper" style="display: none;">
+    <div class="message-card joiask-message-card" data-target="message-card.card">
+        <div class="message-card__body message-card__body_joiask">
+            <div class="message-card__text-wrapper">
+                <div class="message-card__text message-card__text_joiask" id="text_joiask"></div>
+            </div>
+            <div class="message-card__brand-wrapper message-card__brand-wrapper_joiask">提问箱</div>
+        </div>
+        <div class="message-card__logo-wrapper"><img class="message-card__logo"
+                                                     src="joiask.png"
+                                                     alt="Logo"></div>
+    </div>
+</div>
 </div>
 </body>
 </html>

@@ -41,6 +41,7 @@ namespace Marsher
         private readonly MarshmallowService _marshmallowService;
         private readonly PeingService _peingService;
         private readonly KikuService _kikuService;
+        private readonly JoiAskService _joiAskService;
         private readonly QaDataContext _database = new QaDataContext();
         private readonly LocalListPersistence _localListPersistence;
         private readonly DisplayCommunication _displayCommunication;
@@ -60,6 +61,8 @@ namespace Marsher
             LoadFromXmlFile(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly()?.Location ?? "Marsher.exe"), "Resources", "dictionary.txd"));
             _updateManager = new MarsherUpdateManager();
             _updateManager.CheckUpdate();
+
+            Config.Init();
 
             try
             {
@@ -97,36 +100,81 @@ namespace Marsher
 
             QaListSelector.SelectedIndex = 0;
             //QaList.ItemsSource = _viewModel.ActiveQaList;
-            _peingService = new PeingService();
-            _peingService.OnLoginStatusChanged += (sender, status) =>
-                Dispatcher?.Invoke(() =>
-                {
-                    if (sender != _peingService) return;
-                    _viewModel.UpdatePeingStatus(status);
-                    if (status == ServiceStatus.Available)
-                        _viewModel.StatusText = T("status.logged_in.peing");
-                    else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.peing");
-                });
-            _marshmallowService = new MarshmallowService();
-            _marshmallowService.OnLoginStatusChanged += (sender, status) =>
-                Dispatcher?.Invoke(() =>
-                {
-                    if (sender != _marshmallowService) return;
-                    _viewModel.UpdateMarshmallowStatus(status);
-                    if (status == ServiceStatus.Available)
-                        _viewModel.StatusText = T("status.logged_in.marshmallow");
-                    else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.marshmallow");
-                });
-            _kikuService = new KikuService();
-            _kikuService.OnLoginStatusChanged += (sender, status) =>
-                Dispatcher?.Invoke(() =>
-                {
-                    if (sender != _kikuService) return;
-                    _viewModel.UpdateKikuStatus(status);
-                    if (status == ServiceStatus.Available)
-                        _viewModel.StatusText = T("status.logged_in.kiku");
-                    else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.kiku");
-                });
+            if (!Config.Instance.DisablePeing)
+            {
+                _peingService = new PeingService();
+                _peingService.OnLoginStatusChanged += (sender, status) =>
+                    Dispatcher?.Invoke(() =>
+                    {
+                        if (sender != _peingService) return;
+                        _viewModel.UpdatePeingStatus(status);
+                        if (status == ServiceStatus.Available)
+                            _viewModel.StatusText = T("status.logged_in.peing");
+                        else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.peing");
+                    });
+            }
+            else
+            {
+                PeingStatusPanel.Visibility = Visibility.Collapsed;
+                LoginToPeingContextMenuItem.Visibility = Visibility.Collapsed;
+            }
+
+            if (!Config.Instance.DisableMarshmallow)
+            {
+                _marshmallowService = new MarshmallowService();
+                _marshmallowService.OnLoginStatusChanged += (sender, status) =>
+                    Dispatcher?.Invoke(() =>
+                    {
+                        if (sender != _marshmallowService) return;
+                        _viewModel.UpdateMarshmallowStatus(status);
+                        if (status == ServiceStatus.Available)
+                            _viewModel.StatusText = T("status.logged_in.marshmallow");
+                        else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.marshmallow");
+                    });
+            }
+            else
+            {
+                MarshmallowStatusPanel.Visibility = Visibility.Collapsed;
+                LoginToMarshmallowContextMenuItem.Visibility =  Visibility.Collapsed;
+            }
+
+            if (!Config.Instance.DisableKikubox)
+            {
+                _kikuService = new KikuService();
+                _kikuService.OnLoginStatusChanged += (sender, status) =>
+                    Dispatcher?.Invoke(() =>
+                    {
+                        if (sender != _kikuService) return;
+                        _viewModel.UpdateKikuStatus(status);
+                        if (status == ServiceStatus.Available)
+                            _viewModel.StatusText = T("status.logged_in.kiku");
+                        else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.kiku");
+                    });
+            }
+            else
+            {
+                KikuboxStatusPanel.Visibility = Visibility.Collapsed;
+                LoginToKikuContextMenuItem.Visibility = Visibility.Collapsed;
+            }
+
+            if(!Config.Instance.DisableJoiAsk && !string.IsNullOrWhiteSpace(Config.Instance.JoiAskUrl))
+            {
+                _joiAskService = new JoiAskService();
+                _joiAskService.OnLoginStatusChanged += (sender, status) =>
+                    Dispatcher?.Invoke(() =>
+                    {
+                        if (sender != _joiAskService) return;
+                        _viewModel.UpdateKikuStatus(status);
+                        if (status == ServiceStatus.Available)
+                            _viewModel.StatusText = T("status.logged_in.joiask");
+                        else if (status == ServiceStatus.NotLoggedIn) _viewModel.StatusText = T("status.dropped.joiask");
+                    });
+            }
+            else
+            {
+                JoiAskStatusPanel.Visibility = Visibility.Collapsed;
+                LoginToJoiAskContextMenuItem.Visibility = Visibility.Collapsed;
+            }
 
             foreach (var stubs in _localListPersistence.GetAllStubs())
             {
@@ -226,6 +274,13 @@ namespace Marsher
             OpenLoginWindow(
                 "https://app.kikubox.com/",
                 T("ui.commands.login.kiku"), _kikuService);
+        }
+
+        private void LoginToJoiAskContextMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            OpenLoginWindow(
+                _joiAskService.AdminUrl,
+                T("ui.commands.login.joiask"), _joiAskService);
         }
 
         private void OpenLoginWindow(string url, string title, Service service)
@@ -425,12 +480,35 @@ namespace Marsher
             _currentTask = Task.Run(() =>
             {
                 UpdateStatusText(T("status.fetching"));
-                FetchService(T("service.marshmallow"), _marshmallowService, out var marshmallowCount, out var marshmallowPageCount);
-                FetchService(T("service.peing"), _peingService, out var peingCount, out var peingPageCount);
-                FetchService(T("service.kiku"), _kikuService, out var kikukCount, out var kikuPageCount);
+                var totalCount = 0;
+                var totalPageCount = 0;
+                if (!Config.Instance.DisableMarshmallow)
+                {
+                    FetchService(T("service.marshmallow"), _marshmallowService, out var marshmallowCount, out var marshmallowPageCount);
+                    totalCount += marshmallowCount;
+                    totalPageCount += marshmallowPageCount;
+                }
+                if (!Config.Instance.DisablePeing)
+                {
+                    FetchService(T("service.peing"), _peingService, out var peingCount, out var peingPageCount);
+                    totalCount += peingCount;
+                    totalPageCount += peingPageCount;
+                }
+                if (!Config.Instance.DisableKikubox)
+                {
+                    FetchService(T("service.kiku"), _kikuService, out var kikukCount, out var kikuPageCount);
+                    totalCount += kikukCount;
+                    totalPageCount += kikuPageCount;
+                }
+                if(!Config.Instance.DisableJoiAsk && !string.IsNullOrWhiteSpace(Config.Instance.JoiAskUrl))
+                {
+                    FetchService(T("service.joiask"), _joiAskService, out var joiAskCount, out var joiAskPageCount);
+                    totalCount += joiAskCount;
+                    totalPageCount += joiAskPageCount;
+                }
 
                 _viewModel.RefreshQaList();
-                UpdateStatusText(T("status.fetched", "items", (marshmallowCount + peingCount + kikukCount).ToString(), "pages", (marshmallowPageCount + peingPageCount+ kikuPageCount).ToString()));
+                UpdateStatusText(T("status.fetched", "items", totalCount.ToString(), "pages", totalPageCount.ToString()));
             });
             try
             {
@@ -695,6 +773,7 @@ namespace Marsher
         public PackIconMaterialKind MarshmallowStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
         public PackIconMaterialKind PeingStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
         public PackIconMaterialKind KikuStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
+        public PackIconMaterialKind JoiAskStatus { get; set; } = PackIconMaterialKind.HelpCircleOutline;
 
         #endregion
 
@@ -788,6 +867,12 @@ namespace Marsher
         {
             KikuStatus = _statusDictionary[status];
             FireOnPropertyChanged(nameof(KikuStatus));
+        }
+
+        internal void UpdateJoiAskStatus(ServiceStatus status)
+        {
+            JoiAskStatus = _statusDictionary[status];
+            FireOnPropertyChanged(nameof(JoiAskStatus));
         }
 
 
